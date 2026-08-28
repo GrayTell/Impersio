@@ -1,6 +1,6 @@
 {
-  "name": "Impersio - Effortless AI Voice Dictation & Transcription",
-  "description": "Impersio is an opensource AI dictation tool that instantly converts messy thoughts into clear, perfectly formatted text. Github repo : https://github.com/Silencly/Silencly-/",
-  "requestFramePermissions": ["microphone"], 
+  "name": "Graytell formerly silencly and impersio",
+  "description": "Silencly and impersio.me has been bought by Graytell. Try Graytellai.space-z.ai.",
+  "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

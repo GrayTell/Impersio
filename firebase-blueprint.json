@@ -1,82 +1,29 @@
 {
   "entities": {
-    "history": {
-      "title": "Dictation History",
-      "description": "User's voice dictation sessions",
+    "Paper": {
+      "title": "Paper",
+      "description": "An intelligence briefing or document submitted or published on GrayTell.",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "createdAt": { "type": "string" },
-        "title": { "type": "string" },
-        "rawText": { "type": "string" },
-        "polishedText": { "type": "string" },
-        "durationSeconds": { "type": "number" },
-        "userId": { "type": "string" }
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "summary": { "type": "string", "maxLength": 1000 },
+        "content": { "type": "string", "maxLength": 10000 },
+        "category": { "type": "string", "enum": ["counter-terrorism", "military", "crime"] },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "authorId": { "type": "string", "maxLength": 128 },
+        "authorEmail": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "maxLength": 128 },
+        "sources": { "type": "array", "description": "Array of sources with name, url, logoUrl" }
       },
-      "required": ["id", "createdAt", "title", "rawText", "polishedText", "userId"]
-    },
-    "dictionary": {
-      "title": "Custom Dictionary",
-      "description": "User's custom word replacement rules",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "word": { "type": "string" },
-        "replaceWith": { "type": "string" },
-        "userId": { "type": "string" }
-      },
-      "required": ["id", "word", "userId"]
-    },
-    "dsbuddy_profile": {
-      "title": "DSbuddy Profile",
-      "description": "User's custom Discord companion profile",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "username": { "type": "string" },
-        "email": { "type": "string" },
-        "avatar": { "type": "string" },
-        "status": { "type": "string" },
-        "bio": { "type": "string" },
-        "createdAt": { "type": "string" },
-        "updatedAt": { "type": "string" }
-      },
-      "required": ["userId", "username", "email", "avatar", "status", "bio", "createdAt", "updatedAt"]
-    },
-    "dsbuddy_dm": {
-      "title": "DSbuddy DM",
-      "description": "User's direct message history with Silency",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "senderName": { "type": "string" },
-        "senderAvatar": { "type": "string" },
-        "senderRole": { "type": "string" },
-        "text": { "type": "string" },
-        "timestamp": { "type": "string" },
-        "isMe": { "type": "boolean" },
-        "userId": { "type": "string" },
-        "createdAt": { "type": "string" }
-      },
-      "required": ["id", "senderName", "senderAvatar", "senderRole", "text", "timestamp", "isMe", "userId", "createdAt"]
+      "required": ["id", "title", "content", "category", "status", "authorId", "authorEmail", "createdAt", "updatedAt", "sources"]
     }
   },
   "firestore": {
-    "history/{historyId}": {
-      "schema": "history",
-      "description": "Stores voice dictation history"
-    },
-    "dictionary/{dictionaryId}": {
-      "schema": "dictionary",
-      "description": "Stores custom dictionary items"
-    },
-    "dsbuddy_profiles/{profileId}": {
-      "schema": "dsbuddy_profile",
-      "description": "Stores custom companion profiles for DSbuddy"
-    },
-    "dsbuddy_dms/{messageId}": {
-      "schema": "dsbuddy_dm",
-      "description": "Stores direct messages with Silency bot"
+    "/papers/{paperId}": {
+      "schema": "Paper",
+      "description": "Collection of intelligence papers, briefings, and draft submissions."
     }
   }
 }

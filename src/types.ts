@@ -1,64 +1,27 @@
-export interface User {
-  id: string;
-  email: string;
+export interface Source {
   name: string;
-  image?: string;
-  provider?: string;
+  url: string;
+  logoUrl?: string; // Optional custom logo, otherwise domain favicon fallback used
 }
 
-export interface UserSession {
-  user: User;
-  token: string;
-  expiresAt: string;
-}
-
-export interface DictationSession {
+export interface Paper {
   id: string;
-  createdAt: string;
   title: string;
-  rawText: string;
-  polishedText: string;
-  durationSeconds: number;
+  summary: string;
+  content: string;
+  category: "counter-terrorism" | "military" | "crime";
+  status: "pending" | "approved" | "rejected";
+  authorId: string;
+  authorEmail: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  sources: Source[];
+  rejectionReason?: string;
 }
 
-export interface TestimonialAuthor {
-  name: string;
-  handle: string;
-  avatar: string;
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName?: string;
+  isAdmin: boolean;
 }
-
-export type ToneOption = 'polished' | 'academic' | 'bulletpoints' | 'email';
-
-export interface ToneDefinition {
-  id: ToneOption;
-  label: string;
-  description: string;
-  emoji: string;
-}
-
-export const TONE_OPTIONS: ToneDefinition[] = [
-  {
-    id: 'polished',
-    label: 'Polished Draft',
-    description: 'Polishes speech into clean, readable text, balancing professional grammar with your natural voice.',
-    emoji: '✨'
-  },
-  {
-    id: 'academic',
-    label: 'Academic Notes',
-    description: 'Scholarly precision, sophisticated language, and analytical tone.',
-    emoji: '🎓'
-  },
-  {
-    id: 'bulletpoints',
-    label: 'Bullet Points',
-    description: 'Extracts action items, key insights, and summaries into lists.',
-    emoji: '📝'
-  },
-  {
-    id: 'email',
-    label: 'Email Draft',
-    description: 'A polite, structured email with subject line and spacing.',
-    emoji: '✉️'
-  }
-];

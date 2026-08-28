@@ -1,70 +1,84 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Default-deny catch-all
+
+    // Global default-deny rule
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Global helpers
+    // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == 'sapkotaanubhav91@gmail.com';
+    }
+
+    function isOwner(resourceData) {
+      return isSignedIn() && resourceData.authorId == request.auth.uid;
     }
 
     function isValidId(id) {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    function incoming() {
-      return request.resource.data;
-    }
-
-    function existing() {
-      return resource.data;
-    }
-
-    // Helper to validate history schema
-    function isValidHistory(data) {
-      return data.keys().hasAll(['id', 'createdAt', 'title', 'rawText', 'polishedText', 'durationSeconds', 'userId'])
-        && data.keys().size() == 7
-        && data.id is string && data.id.size() <= 128
+    function isValidPaper(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.title is string && data.title.size() >= 5 && data.title.size() <= 200
+        && data.summary is string && data.summary.size() <= 1000
+        && data.content is string && data.content.size() >= 10 && data.content.size() <= 10000
+        && data.category is string && (data.category == 'counter-terrorism' || data.category == 'military' || data.category == 'crime')
+        && data.status is string && (data.status == 'pending' || data.status == 'approved' || data.status == 'rejected')
+        && data.authorId is string && data.authorId.size() <= 128
+        && data.authorEmail is string && data.authorEmail.size() <= 128
         && data.createdAt is string && data.createdAt.size() <= 128
-        && data.title is string && data.title.size() <= 256
-        && data.rawText is string && data.rawText.size() <= 100000
-        && data.polishedText is string && data.polishedText.size() <= 100000
-        && data.durationSeconds is number
-        && data.userId is string && data.userId == request.auth.uid;
+        && data.updatedAt is string && data.updatedAt.size() <= 128
+        && data.sources is list && data.sources.size() <= 100;
     }
 
-    // Helper to validate dictionary schema
-    function isValidDictionary(data) {
-      return data.keys().hasAll(['id', 'word', 'replaceWith', 'userId'])
-        && data.keys().size() == 4
-        && data.id is string && data.id.size() <= 128
-        && data.word is string && data.word.size() <= 256
-        && data.replaceWith is string && data.replaceWith.size() <= 256
-        && data.userId is string && data.userId == request.auth.uid;
-    }
+    match /papers/{paperId} {
+      // Access permissions:
+      // - Approved papers are publicly readable.
+      // - Pending/rejected papers are readable by their owners or administrators.
+      allow get: if resource.data.status == 'approved' || isOwner(resource.data) || isAdmin();
+      allow list: if resource.data.status == 'approved' || isOwner(resource.data) || isAdmin();
 
-    // History rules
-    match /history/{historyId} {
-      allow read, list: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn() && isValidId(historyId) && isValidHistory(incoming()) && incoming().id == historyId;
-      allow update: if isSignedIn() && isValidId(historyId) && isValidHistory(incoming()) && isValidHistory(existing()) && incoming().userId == existing().userId;
-      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
-    }
+      // Creation:
+      // - Signed-in users can create. Standard users must submit with status 'pending' and correct ownership fields.
+      // - Admins can publish directly with status 'approved' or any status.
+      allow create: if isSignedIn()
+        && isValidId(paperId)
+        && isValidPaper(request.resource.data)
+        && (
+          isAdmin() || (
+            request.resource.data.status == 'pending'
+            && request.resource.data.authorId == request.auth.uid
+            && request.resource.data.authorEmail == request.auth.token.email
+          )
+        );
 
-    // Dictionary rules
-    match /dictionary/{dictionaryId} {
-      allow read, list: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn() && isValidId(dictionaryId) && isValidDictionary(incoming()) && incoming().id == dictionaryId;
-      allow update: if isSignedIn() && isValidId(dictionaryId) && isValidDictionary(incoming()) && isValidDictionary(existing()) && incoming().userId == existing().userId;
-      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+      // Updates:
+      // - Owners can edit their own papers ONLY if the paper is still 'pending' (terminal state locks apply once approved/rejected).
+      //   They must not change ownership, createdAt, or status (must stay pending).
+      // - Admins can modify any field, update status, approve, reject, or edit.
+      allow update: if isSignedIn()
+        && isValidPaper(request.resource.data)
+        && (
+          isAdmin() || (
+            isOwner(resource.data)
+            && resource.data.status == 'pending'
+            && request.resource.data.status == 'pending'
+            && request.resource.data.authorId == resource.data.authorId
+            && request.resource.data.authorEmail == resource.data.authorEmail
+            && request.resource.data.createdAt == resource.data.createdAt
+          )
+        );
+
+      // Deletion:
+      // - Only admins can delete papers.
+      allow delete: if isAdmin();
     }
   }
 }
