@@ -1,6 +1,6 @@
 {
-  "name": "Graytell formerly silencly and impersio",
-  "description": "Silencly and impersio.me has been bought by Graytell. Try Graytellai.space-z.ai.",
+  "name": "GrayTell - AI Research Safety Lab",
+  "description": "Graytell is an AI research safety lab that builds AI accessible safefor everyone . Try at graytellai.space-z.ai",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
