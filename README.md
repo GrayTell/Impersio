@@ -1,4 +1,4 @@
-# Graytell formerly Impersio please note that move to graytellai.space-z.ai for trying it further real repo go here . Github.com/graytell/graytell
+# Graytell formerly Impersio please note that move to graytell.vercel.app for trying it further real repo go here . Github.com/graytell/
 
 <p align="center">
   <img src="https://upload.wikimedia.org/wikipedia/commons/e/e5/Silencly-logo-transparent.png?_=20260711084505" alt="Silencly Logo" width="220" />
