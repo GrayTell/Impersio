@@ -53,8 +53,7 @@ Graytell is an AI Agent that does its job made by the Graytell Labs it has acces
 Created By
 
 Anubhav Sapkota
-Daksh Shetty
-Johaan Jovin Cheeran
+
 
 
 
